@@ -104,15 +104,36 @@
     <button id="incorrect" disabled>Incorrect</button>
   </div>
   <script>
-    const cocktails = [
-      { name: "Margarita", recipe: "2 oz tequila\n1 oz lime juice\n1 oz triple sec\nShake with ice, strain into salt-rimmed glass." },
-      { name: "Old Fashioned", recipe: "2 oz bourbon or rye\n1 sugar cube\n2 dashes bitters\nMuddle sugar with bitters, add whiskey and ice, stir." },
-      { name: "Negroni", recipe: "1 oz gin\n1 oz Campari\n1 oz sweet vermouth\nStir with ice and strain over fresh ice." },
-      { name: "Daiquiri", recipe: "2 oz rum\n1 oz lime juice\n3/4 oz simple syrup\nShake with ice and strain." },
-      { name: "Mojito", recipe: "2 oz white rum\n1 oz lime juice\n2 tsp sugar\nMint leaves\nTop with soda water." },
-      { name: "Martini", recipe: "2 oz gin\n1/2 oz dry vermouth\nStir with ice, strain, garnish with olive or lemon twist." },
-      { name: "Manhattan", recipe: "2 oz rye whiskey\n1 oz sweet vermouth\n2 dashes bitters\nStir with ice, strain, garnish with cherry." }
-    ];
+      const cocktails = [
+        { name: "Airmail", recipe: "Ron Zacapa Centenario Rum 60 ml\nLime Juice 15 ml\nHoney Syrup (1 : 1) 15 ml\nSparkling Wine 60 ml" },
+        { name: "Batanga", recipe: "Don Julio Blanco Tequila 60 ml\nLime Juice 15 ml\nCola ≈ 120 ml (top)" },
+        { name: "Blood & Sand", recipe: "Johnnie Walker Scotch Whisky 22.5 ml\nSweet Vermouth 22.5 ml\nCherry Heering 22.5 ml\nOrange Juice 22.5 ml" },
+        { name: "Bobby Burns", recipe: "Johnnie Walker Scotch Whisky 45 ml\nSweet Vermouth 20 ml\nD.O.M. Benedictine 5 ml\nAbsinthe rinse\nAromatic Bitters dash" },
+        { name: "Chi Chi", recipe: "Ketel One Vodka 60 ml\nPineapple Juice 90 ml\nCoconut Cream 30 ml" },
+        { name: "Corpse Reviver No. 2", recipe: "Tanqueray No. Ten Gin 22.5 ml\nOrange Liqueur 22.5 ml\nLillet Blanc 22.5 ml\nLemon Juice 22.5 ml\nSugar Syrup 5 ml\nAbsinthe rinse" },
+        { name: "Cosmopolitan", recipe: "Ketel One Vodka 45 ml\nCranberry Juice 30 ml\nLime Juice 15 ml\nOrange Liqueur 15 ml" },
+        { name: "El Diablo", recipe: "Don Julio Blanco Tequila 45 ml\nCrème de Cassis 15 ml\nLime Juice 15 ml\nGinger Beer ≈ 90 ml (top)" },
+        { name: "Espresso Martini", recipe: "Mr Black Coffee Liqueur 30 ml\nKetel One Vodka 30 ml\nCold-Brew Coffee 30 ml" },
+        { name: "French 75", recipe: "Tanqueray No. Ten Gin 30 ml\nLemon Juice 15 ml\nSugar Syrup 10 ml\nSparkling Wine 60 ml" },
+        { name: "Gin Basil Smash", recipe: "Tanqueray No. Ten Gin 60 ml\nLemon Juice 30 ml\nSugar Syrup 15 ml\nBasil Leaves (~10 leaves)" },
+        { name: "Jasmine", recipe: "Tanqueray No. Ten Gin 45 ml\nCampari 15 ml\nOrange Liqueur 7.5 ml\nLemon Juice 15 ml" },
+        { name: "Jungle Bird", recipe: "Ron Zacapa Centenario Rum 45 ml\nCampari 15 ml\nPineapple Juice 45 ml\nLime Juice 15 ml\nSugar Syrup 7.5 ml" },
+        { name: "Last Word", recipe: "Tanqueray No. Ten Gin 22.5 ml\nGreen Chartreuse 22.5 ml\nMaraschino Liqueur 22.5 ml\nLime Juice 22.5 ml" },
+        { name: "London Calling", recipe: "Tanqueray No. Ten Gin 40 ml\nFino Sherry 15 ml\nLemon Juice 20 ml\nSugar Syrup 10 ml\nOrange Bitters dash" },
+        { name: "Old Cuban", recipe: "Ron Zacapa Centenario Rum 45 ml\nLime Juice 22.5 ml\nSugar Syrup 22.5 ml\nMint Leaves (~6 leaves)\nSparkling Wine 60 ml" },
+        { name: "Painkiller", recipe: "Ron Zacapa Centenario Rum 60 ml\nPineapple Juice 90 ml\nOrange Juice 30 ml\nLime Juice 15 ml\nCoconut Cream 30 ml" },
+        { name: "Paloma", recipe: "Don Julio Blanco Tequila 60 ml\nGrapefruit Juice 90 ml\nLime Juice 15 ml\nAgave Syrup 15 ml\nSoda ≈ 60 ml (top)" },
+        { name: "Rattlesnake", recipe: "Bulleit Rye Whiskey 60 ml\nLemon Juice 30 ml\nSugar Syrup 20 ml\nAbsinthe rinse\nEgg White (~25 ml)" },
+        { name: "Revolver", recipe: "Bulleit Bourbon 60 ml\nMr Black Coffee Liqueur 30 ml\nOrange Bitters dash" },
+        { name: "Rob Roy", recipe: "Johnnie Walker Black Label 60 ml\nSweet Vermouth 30 ml\nAromatic Bitters dash" },
+        { name: "Russian Spring Punch", recipe: "Ketel One Vodka 25 ml\nStrawberry Liqueur 10 ml\nCrème de Cassis 10 ml\nLemon Juice 25 ml\nSugar Syrup 10 ml\nSparkling Wine 60 ml" },
+        { name: "Sea Breeze", recipe: "Ketel One Vodka 45 ml\nGrapefruit Juice 45 ml\nCranberry Juice 90 ml" },
+        { name: "Southside", recipe: "Tanqueray No. Ten Gin 60 ml\nLime Juice 30 ml\nSugar Syrup 15 ml\nMint Leaves (~10 leaves)" },
+        { name: "Tommy’s Margarita", recipe: "Don Julio Blanco Tequila 60 ml\nLime Juice 30 ml\nAgave Syrup 15 ml" },
+        { name: "Toreador", recipe: "Don Julio Blanco Tequila 45 ml\nApricot Brandy 30 ml\nLime Juice 15 ml\nBitters dash" },
+        { name: "Vesper Martini", recipe: "Tanqueray No. Ten Gin 60 ml\nKetel One Vodka 20 ml\nDry Vermouth 10 ml" },
+        { name: "Whisk(e)y Sour", recipe: "Johnnie Walker Black Label or Bulleit Bourbon 60 ml\nLemon Juice 30 ml\nSugar Syrup 20 ml\nEgg White (~25 ml)\n(Bitters optional — dash)" }
+      ];
     let index = 0;
     let score = 0;
 
