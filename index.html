@@ -9,12 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --clr-bg: #fdfdfd;
-      --clr-primary: #ff9800;
-      --clr-secondary: #4caf50;
-      --clr-text: #333;
-      --clr-button: #607d8b;
-      --clr-button-disabled: #b0bec5;
+      --clr-bg: #121212;
+      --clr-primary: #bb86fc;
+      --clr-secondary: #03dac6;
+      --clr-text: #e0e0e0;
+      --clr-button: #333;
+      --clr-button-disabled: #555;
     }
 
     * {
@@ -78,13 +78,15 @@
     }
 
     .front {
-      background: #fff9c4;
+      background: #333;
+      color: var(--clr-text);
     }
 
     .back {
-      background: #c8e6c9;
+      background: #444;
       transform: rotateY(180deg);
       white-space: pre-wrap;
+      color: var(--clr-text);
     }
 
     #controls {
@@ -104,7 +106,7 @@
       padding: 0.75rem;
       border: none;
       background: var(--clr-button);
-      color: white;
+      color: var(--clr-text);
       border-radius: 4px;
       cursor: pointer;
       font-size: 1rem;
@@ -146,11 +148,13 @@
       <div class="side back" id="card-back"></div>
     </div>
   </div>
+  <div id="end-message" style="display:none;text-align:center;"></div>
   <div id="controls">
     <button id="prev">Previous</button>
     <button id="next">Next</button>
     <button id="correct" disabled>Correct</button>
     <button id="incorrect" disabled>Incorrect</button>
+    <button id="reset" style="display:none;">Reset</button>
   </div>
   <script>
       const cocktails = [
@@ -196,12 +200,17 @@
     shuffle(cocktails);
 
     const card = document.getElementById('card');
+    const flashcardEl = document.getElementById('flashcard');
+    const endMessage = document.getElementById('end-message');
     const front = document.getElementById('card-front');
     const back = document.getElementById('card-back');
     const scoreValue = document.getElementById('score-value');
     const totalValue = document.getElementById('total-value');
     const correctBtn = document.getElementById('correct');
     const incorrectBtn = document.getElementById('incorrect');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const resetBtn = document.getElementById('reset');
 
     totalValue.textContent = cocktails.length;
 
@@ -214,6 +223,32 @@
       incorrectBtn.disabled = true;
     }
 
+    function showEnd() {
+      flashcardEl.style.display = 'none';
+      endMessage.textContent = `Finished! Your score: ${score}/${cocktails.length}`;
+      endMessage.style.display = 'block';
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      correctBtn.style.display = 'none';
+      incorrectBtn.style.display = 'none';
+      resetBtn.style.display = 'inline-block';
+    }
+
+    function reset() {
+      index = 0;
+      score = 0;
+      scoreValue.textContent = score;
+      shuffle(cocktails);
+      flashcardEl.style.display = '';
+      endMessage.style.display = 'none';
+      prevBtn.style.display = '';
+      nextBtn.style.display = '';
+      correctBtn.style.display = '';
+      incorrectBtn.style.display = '';
+      resetBtn.style.display = 'none';
+      loadCard();
+    }
+
     card.addEventListener('click', () => {
       card.classList.toggle('flipped');
       const flipped = card.classList.contains('flipped');
@@ -221,24 +256,32 @@
       incorrectBtn.disabled = !flipped;
     });
 
-    document.getElementById('next').addEventListener('click', () => {
-      index = (index + 1) % cocktails.length;
-      loadCard();
+    nextBtn.addEventListener('click', () => {
+      if (index < cocktails.length - 1) {
+        index++;
+        loadCard();
+      } else {
+        showEnd();
+      }
     });
 
-    document.getElementById('prev').addEventListener('click', () => {
-      index = (index - 1 + cocktails.length) % cocktails.length;
-      loadCard();
+    prevBtn.addEventListener('click', () => {
+      if (index > 0) {
+        index--;
+        loadCard();
+      }
     });
+
+    resetBtn.addEventListener('click', reset);
 
     correctBtn.addEventListener('click', () => {
       score++;
       scoreValue.textContent = score;
-      document.getElementById('next').click();
+      nextBtn.click();
     });
 
     incorrectBtn.addEventListener('click', () => {
-      document.getElementById('next').click();
+      nextBtn.click();
     });
 
     loadCard();
