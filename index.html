@@ -40,11 +40,27 @@
       color: var(--clr-text);
     }
 
+    #start-screen {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    #start-button {
+      background: var(--clr-primary);
+      color: #000;
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
     #flashcard {
       perspective: 1000px;
       width: 100%;
       max-width: 320px;
-      height: 220px;
+      height: 280px;
       margin: 2rem 0;
     }
 
@@ -75,11 +91,14 @@
       padding: 1rem;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow-y: auto;
     }
 
     .front {
       background: #333;
       color: var(--clr-text);
+      font-size: 1.2rem;
+      font-weight: 600;
     }
 
     .back {
@@ -87,6 +106,8 @@
       transform: rotateY(180deg);
       white-space: pre-wrap;
       color: var(--clr-text);
+      font-size: 0.85rem;
+      line-height: 1.3;
     }
 
     #controls {
@@ -128,7 +149,11 @@
 
       #flashcard {
         max-width: 400px;
-        height: 260px;
+        height: 320px;
+      }
+
+      .back {
+        font-size: 0.9rem;
       }
 
       button {
@@ -141,62 +166,413 @@
 </head>
 <body>
   <h1>Cocktail Flashcards</h1>
-  <div id="score">Score: <span id="score-value">0</span>/<span id="total-value">0</span></div>
-  <div id="flashcard">
-    <div class="card" id="card">
-      <div class="side front" id="card-front"></div>
-      <div class="side back" id="card-back"></div>
+  
+  <div id="start-screen">
+    <p>Ready to test your cocktail knowledge?</p>
+    <button id="start-button">Start Practice Session</button>
+  </div>
+
+  <div id="game-area" style="display:none;">
+    <div id="score">Score: <span id="score-value">0</span>/<span id="total-value">0</span></div>
+    <div id="flashcard">
+      <div class="card" id="card">
+        <div class="side front" id="card-front"></div>
+        <div class="side back" id="card-back"></div>
+      </div>
+    </div>
+    <div id="end-message" style="display:none;text-align:center;"></div>
+    <div id="analytics" style="display:none;text-align:center;margin-top:1rem;padding:1rem;background:#333;border-radius:8px;">
+      <h3 style="margin-top:0;color:var(--clr-secondary);">Session Analytics</h3>
+      <div id="analytics-content"></div>
+      <button id="copy-stats" style="margin-top:1rem;background:var(--clr-primary);color:#000;">Copy Results</button>
+    </div>
+    <div id="controls">
+      <button id="prev">Previous</button>
+      <button id="next">Next</button>
+      <button id="correct" disabled>Correct</button>
+      <button id="incorrect" disabled>Incorrect</button>
+      <button id="reset" style="display:none;">Reset</button>
     </div>
   </div>
-  <div id="end-message" style="display:none;text-align:center;"></div>
-  <div id="analytics" style="display:none;text-align:center;margin-top:1rem;padding:1rem;background:#333;border-radius:8px;">
-    <h3 style="margin-top:0;color:var(--clr-secondary);">Session Analytics</h3>
-    <div id="analytics-content"></div>
-    <button id="copy-stats" style="margin-top:1rem;background:var(--clr-primary);color:#000;">Copy Results</button>
-  </div>
-  <div id="controls">
-    <button id="prev">Previous</button>
-    <button id="next">Next</button>
-    <button id="correct" disabled>Correct</button>
-    <button id="incorrect" disabled>Incorrect</button>
-    <button id="reset" style="display:none;">Reset</button>
-  </div>
+
   <script>
       const cocktails = [
-        { name: "Airmail", recipe: "Ron Zacapa Centenario Rum 60 ml\nLime Juice 15 ml\nHoney Syrup (1 : 1) 15 ml\nSparkling Wine 60 ml" },
-        { name: "Batanga", recipe: "Don Julio Blanco Tequila 60 ml\nLime Juice 15 ml\nCola ≈ 120 ml (top)" },
-        { name: "Blood & Sand", recipe: "Johnnie Walker Scotch Whisky 22.5 ml\nSweet Vermouth 22.5 ml\nCherry Heering 22.5 ml\nOrange Juice 22.5 ml" },
-        { name: "Bobby Burns", recipe: "Johnnie Walker Scotch Whisky 45 ml\nSweet Vermouth 20 ml\nD.O.M. Benedictine 5 ml\nAbsinthe rinse\nAromatic Bitters dash" },
-        { name: "Chi Chi", recipe: "Ketel One Vodka 60 ml\nPineapple Juice 90 ml\nCoconut Cream 30 ml" },
-        { name: "Corpse Reviver No. 2", recipe: "Tanqueray No. Ten Gin 22.5 ml\nOrange Liqueur 22.5 ml\nLillet Blanc 22.5 ml\nLemon Juice 22.5 ml\nSugar Syrup 5 ml\nAbsinthe rinse" },
-        { name: "Cosmopolitan", recipe: "Ketel One Vodka 45 ml\nCranberry Juice 30 ml\nLime Juice 15 ml\nOrange Liqueur 15 ml" },
-        { name: "El Diablo", recipe: "Don Julio Blanco Tequila 45 ml\nCrème de Cassis 15 ml\nLime Juice 15 ml\nGinger Beer ≈ 90 ml (top)" },
-        { name: "Espresso Martini", recipe: "Mr Black Coffee Liqueur 30 ml\nKetel One Vodka 30 ml\nCold-Brew Coffee 30 ml" },
-        { name: "French 75", recipe: "Tanqueray No. Ten Gin 30 ml\nLemon Juice 15 ml\nSugar Syrup 10 ml\nSparkling Wine 60 ml" },
-        { name: "Gin Basil Smash", recipe: "Tanqueray No. Ten Gin 60 ml\nLemon Juice 30 ml\nSugar Syrup 15 ml\nBasil Leaves (~10 leaves)" },
-        { name: "Jasmine", recipe: "Tanqueray No. Ten Gin 45 ml\nCampari 15 ml\nOrange Liqueur 7.5 ml\nLemon Juice 15 ml" },
-        { name: "Jungle Bird", recipe: "Ron Zacapa Centenario Rum 45 ml\nCampari 15 ml\nPineapple Juice 45 ml\nLime Juice 15 ml\nSugar Syrup 7.5 ml" },
-        { name: "Last Word", recipe: "Tanqueray No. Ten Gin 22.5 ml\nGreen Chartreuse 22.5 ml\nMaraschino Liqueur 22.5 ml\nLime Juice 22.5 ml" },
-        { name: "London Calling", recipe: "Tanqueray No. Ten Gin 40 ml\nFino Sherry 15 ml\nLemon Juice 20 ml\nSugar Syrup 10 ml\nOrange Bitters dash" },
-        { name: "Old Cuban", recipe: "Ron Zacapa Centenario Rum 45 ml\nLime Juice 22.5 ml\nSugar Syrup 22.5 ml\nMint Leaves (~6 leaves)\nSparkling Wine 60 ml" },
-        { name: "Painkiller", recipe: "Ron Zacapa Centenario Rum 60 ml\nPineapple Juice 90 ml\nOrange Juice 30 ml\nLime Juice 15 ml\nCoconut Cream 30 ml" },
-        { name: "Paloma", recipe: "Don Julio Blanco Tequila 60 ml\nGrapefruit Juice 90 ml\nLime Juice 15 ml\nAgave Syrup 15 ml\nSoda ≈ 60 ml (top)" },
-        { name: "Rattlesnake", recipe: "Bulleit Rye Whiskey 60 ml\nLemon Juice 30 ml\nSugar Syrup 20 ml\nAbsinthe rinse\nEgg White (~25 ml)" },
-        { name: "Revolver", recipe: "Bulleit Bourbon 60 ml\nMr Black Coffee Liqueur 30 ml\nOrange Bitters dash" },
-        { name: "Rob Roy", recipe: "Johnnie Walker Black Label 60 ml\nSweet Vermouth 30 ml\nAromatic Bitters dash" },
-        { name: "Russian Spring Punch", recipe: "Ketel One Vodka 25 ml\nStrawberry Liqueur 10 ml\nCrème de Cassis 10 ml\nLemon Juice 25 ml\nSugar Syrup 10 ml\nSparkling Wine 60 ml" },
-        { name: "Sea Breeze", recipe: "Ketel One Vodka 45 ml\nGrapefruit Juice 45 ml\nCranberry Juice 90 ml" },
-        { name: "Southside", recipe: "Tanqueray No. Ten Gin 60 ml\nLime Juice 30 ml\nSugar Syrup 15 ml\nMint Leaves (~10 leaves)" },
-        { name: "Tommy's Margarita", recipe: "Don Julio Blanco Tequila 60 ml\nLime Juice 30 ml\nAgave Syrup 15 ml" },
-        { name: "Toreador", recipe: "Don Julio Blanco Tequila 45 ml\nApricot Brandy 30 ml\nLime Juice 15 ml\nBitters dash" },
-        { name: "Vesper Martini", recipe: "Tanqueray No. Ten Gin 60 ml\nKetel One Vodka 20 ml\nDry Vermouth 10 ml" },
-        { name: "Whisk(e)y Sour", recipe: "Johnnie Walker Black Label or Bulleit Bourbon 60 ml\nLemon Juice 30 ml\nSugar Syrup 20 ml\nEgg White (~25 ml)\n(Bitters optional — dash)" }
+        { 
+          name: "Airmail", 
+          recipe: `Ron Zacapa Centenario Rum 60 ml
+Lime Juice 15 ml
+Honey Syrup (1:1) 15 ml
+Sparkling Wine 60 ml
+
+Glass: Highball
+Method: Shake
+Strain Method: Strain
+Ice Type: Cubed ice
+Garnish: Lime wedge or twist` 
+        },
+        { 
+          name: "Batanga", 
+          recipe: `Don Julio Blanco Tequila 60 ml
+Lime Juice 15 ml
+Cola ≈ 120 ml (top)
+
+Glass: Highball
+Method: Build
+Strain Method: None
+Ice Type: Cubed ice
+Garnish: Lime wedge + knife` 
+        },
+        { 
+          name: "Blood & Sand", 
+          recipe: `Johnnie Walker Scotch Whisky 22.5 ml
+Sweet Vermouth 22.5 ml
+Cherry Heering 22.5 ml
+Orange Juice 22.5 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Orange twist` 
+        },
+        { 
+          name: "Bobby Burns", 
+          recipe: `Johnnie Walker Scotch Whisky 45 ml
+Sweet Vermouth 20 ml
+D.O.M. Benedictine 5 ml
+Absinthe rinse
+Aromatic Bitters dash
+
+Glass: Coupe
+Method: Stir
+Strain Method: Julep strain
+Ice Type: No ice
+Garnish: Lemon twist` 
+        },
+        { 
+          name: "Chi Chi", 
+          recipe: `Ketel One Vodka 60 ml
+Pineapple Juice 90 ml
+Coconut Cream 30 ml
+
+Glass: Highball
+Method: Shake
+Strain Method: Dirty dump
+Ice Type: Crushed
+Garnish: Pineapple wedge` 
+        },
+        { 
+          name: "Corpse Reviver No. 2", 
+          recipe: `Tanqueray No. Ten Gin 22.5 ml
+Orange Liqueur 22.5 ml
+Lillet Blanc 22.5 ml
+Lemon Juice 22.5 ml
+Sugar Syrup 5 ml
+Absinthe rinse
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Lemon twist` 
+        },
+        { 
+          name: "Cosmopolitan", 
+          recipe: `Ketel One Vodka 45 ml
+Cranberry Juice 30 ml
+Lime Juice 15 ml
+Orange Liqueur 15 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Flamed orange twist` 
+        },
+        { 
+          name: "El Diablo", 
+          recipe: `Don Julio Blanco Tequila 45 ml
+Crème de Cassis 15 ml
+Lime Juice 15 ml
+Ginger Beer ≈ 90 ml (top)
+
+Glass: Highball
+Method: Shake
+Strain Method: Strain
+Ice Type: Cubed ice
+Garnish: Lime wedge` 
+        },
+        { 
+          name: "Espresso Martini", 
+          recipe: `Mr Black Coffee Liqueur 30 ml
+Ketel One Vodka 30 ml
+Cold-Brew Coffee 30 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Coffee beans (3)` 
+        },
+        { 
+          name: "French 75", 
+          recipe: `Tanqueray No. Ten Gin 30 ml
+Lemon Juice 15 ml
+Sugar Syrup 10 ml
+Sparkling Wine 60 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice (top with sparkling)
+Garnish: Lemon twist` 
+        },
+        { 
+          name: "Gin Basil Smash", 
+          recipe: `Tanqueray No. Ten Gin 60 ml
+Lemon Juice 30 ml
+Sugar Syrup 15 ml
+Basil Leaves (~10 leaves)
+
+Glass: Rocks
+Method: Shake
+Strain Method: Fine strain
+Ice Type: Cubed ice
+Garnish: Basil sprig or leaf` 
+        },
+        { 
+          name: "Jasmine", 
+          recipe: `Tanqueray No. Ten Gin 45 ml
+Campari 15 ml
+Orange Liqueur 7.5 ml
+Lemon Juice 15 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Lemon twist` 
+        },
+        { 
+          name: "Jungle Bird", 
+          recipe: `Ron Zacapa Centenario Rum 45 ml
+Campari 15 ml
+Pineapple Juice 45 ml
+Lime Juice 15 ml
+Sugar Syrup 7.5 ml
+
+Glass: Rocks
+Method: Shake
+Strain Method: Strain
+Ice Type: Cubed ice
+Garnish: Pineapple wedge` 
+        },
+        { 
+          name: "Last Word", 
+          recipe: `Tanqueray No. Ten Gin 22.5 ml
+Green Chartreuse 22.5 ml
+Maraschino Liqueur 22.5 ml
+Lime Juice 22.5 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Lime twist or cherry` 
+        },
+        { 
+          name: "London Calling", 
+          recipe: `Tanqueray No. Ten Gin 40 ml
+Fino Sherry 15 ml
+Lemon Juice 20 ml
+Sugar Syrup 10 ml
+Orange Bitters dash
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Orange twist` 
+        },
+        { 
+          name: "Old Cuban", 
+          recipe: `Ron Zacapa Centenario Rum 45 ml
+Lime Juice 22.5 ml
+Sugar Syrup 22.5 ml
+Mint Leaves (~6 leaves)
+Sparkling Wine 60 ml
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice (top with sparkling)
+Garnish: Mint sprig` 
+        },
+        { 
+          name: "Painkiller", 
+          recipe: `Ron Zacapa Centenario Rum 60 ml
+Pineapple Juice 90 ml
+Orange Juice 30 ml
+Lime Juice 15 ml
+Coconut Cream 30 ml
+
+Glass: Highball
+Method: Shake
+Strain Method: Dirty dump
+Ice Type: Crushed or cubed ice
+Garnish: Pineapple wedge` 
+        },
+        { 
+          name: "Paloma", 
+          recipe: `Don Julio Blanco Tequila 60 ml
+Grapefruit Juice 90 ml
+Lime Juice 15 ml
+Agave Syrup 15 ml
+Soda ≈ 60 ml (top)
+
+Glass: Highball
+Method: Build
+Strain Method: None
+Ice Type: Cubed ice
+Garnish: Grapefruit wedge` 
+        },
+        { 
+          name: "Rattlesnake", 
+          recipe: `Bulleit Rye Whiskey 60 ml
+Lemon Juice 30 ml
+Sugar Syrup 20 ml
+Absinthe rinse
+Egg White (~25 ml)
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Angostura bitters` 
+        },
+        { 
+          name: "Revolver", 
+          recipe: `Bulleit Bourbon 60 ml
+Mr Black Coffee Liqueur 30 ml
+Orange Bitters dash
+
+Glass: Coupe
+Method: Stir
+Strain Method: Julep strain
+Ice Type: No ice
+Garnish: Orange twist` 
+        },
+        { 
+          name: "Rob Roy", 
+          recipe: `Johnnie Walker Black Label 60 ml
+Sweet Vermouth 30 ml
+Aromatic Bitters dash
+
+Glass: Coupe
+Method: Stir
+Strain Method: Julep strain
+Ice Type: No ice
+Garnish: Cherry or orange twist` 
+        },
+        { 
+          name: "Russian Spring Punch", 
+          recipe: `Ketel One Vodka 25 ml
+Strawberry Liqueur 10 ml
+Crème de Cassis 10 ml
+Lemon Juice 25 ml
+Sugar Syrup 10 ml
+Sparkling Wine 60 ml
+
+Glass: Highball
+Method: Shake
+Strain Method: Strain
+Ice Type: Cubed ice
+Garnish: Lemon twist or berry` 
+        },
+        { 
+          name: "Sea Breeze", 
+          recipe: `Ketel One Vodka 45 ml
+Grapefruit Juice 45 ml
+Cranberry Juice 90 ml
+
+Glass: Highball
+Method: Build
+Strain Method: None
+Ice Type: Cubed ice
+Garnish: Lime wedge` 
+        },
+        { 
+          name: "Southside", 
+          recipe: `Tanqueray No. Ten Gin 60 ml
+Lime Juice 30 ml
+Sugar Syrup 15 ml
+Mint Leaves (~10 leaves)
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Mint sprig` 
+        },
+        { 
+          name: "Tommy's Margarita", 
+          recipe: `Don Julio Blanco Tequila 60 ml
+Lime Juice 30 ml
+Agave Syrup 15 ml
+
+Glass: Rocks
+Method: Shake
+Strain Method: Strain
+Ice Type: Cubed ice
+Garnish: Lime wedge` 
+        },
+        { 
+          name: "Toreador", 
+          recipe: `Don Julio Blanco Tequila 45 ml
+Apricot Brandy 30 ml
+Lime Juice 15 ml
+Bitters dash
+
+Glass: Coupe
+Method: Shake
+Strain Method: Fine strain
+Ice Type: No ice
+Garnish: Lime twist` 
+        },
+        { 
+          name: "Vesper Martini", 
+          recipe: `Tanqueray No. Ten Gin 60 ml
+Ketel One Vodka 20 ml
+Dry Vermouth 10 ml
+
+Glass: Coupe
+Method: Stir
+Strain Method: Julep strain
+Ice Type: No ice
+Garnish: Lemon twist` 
+        },
+        { 
+          name: "Whisk(e)y Sour", 
+          recipe: `Johnnie Walker Black Label or Bulleit Bourbon 60 ml
+Lemon Juice 30 ml
+Sugar Syrup 20 ml
+Egg White (~25 ml)
+(Bitters optional — dash)
+
+Glass: Rocks
+Method: Shake
+Strain Method: Fine strain
+Ice Type: Cubed ice
+Garnish: Orange twist + ango` 
+        }
       ];
+
     let index = 0;
     let score = 0;
     let startTime = null;
     let cardStartTime = null;
     let totalTime = 0;
+    let gameStarted = false;
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -204,8 +580,6 @@
         [array[i], array[j]] = [array[j], array[i]];
       }
     }
-
-    shuffle(cocktails);
 
     const card = document.getElementById('card');
     const flashcardEl = document.getElementById('flashcard');
@@ -219,8 +593,19 @@
     const prevBtn = document.getElementById('prev');
     const nextBtn = document.getElementById('next');
     const resetBtn = document.getElementById('reset');
+    const startBtn = document.getElementById('start-button');
+    const startScreen = document.getElementById('start-screen');
+    const gameArea = document.getElementById('game-area');
 
     totalValue.textContent = cocktails.length;
+
+    function startGame() {
+      shuffle(cocktails);
+      gameStarted = true;
+      startScreen.style.display = 'none';
+      gameArea.style.display = 'block';
+      loadCard();
+    }
 
     function loadCard() {
       const c = cocktails[index];
@@ -274,9 +659,12 @@
       startTime = null;
       cardStartTime = null;
       totalTime = 0;
+      gameStarted = false;
       scoreValue.textContent = score;
-      shuffle(cocktails);
-      flashcardEl.style.display = '';
+      
+      // Return to start screen
+      gameArea.style.display = 'none';
+      startScreen.style.display = 'block';
       endMessage.style.display = 'none';
       document.getElementById('analytics').style.display = 'none';
       prevBtn.style.display = '';
@@ -284,10 +672,13 @@
       correctBtn.style.display = '';
       incorrectBtn.style.display = '';
       resetBtn.style.display = 'none';
-      loadCard();
+      flashcardEl.style.display = '';
     }
 
+    startBtn.addEventListener('click', startGame);
+
     card.addEventListener('click', () => {
+      if (!gameStarted) return;
       card.classList.toggle('flipped');
       const flipped = card.classList.contains('flipped');
       correctBtn.disabled = !flipped;
@@ -345,8 +736,6 @@ Average Time per Cocktail: ${avgTimeSeconds} seconds`;
         }, 2000);
       });
     });
-
-    loadCard();
   </script>
 </body>
 </html>
